@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+	provider = "prisma-client-js"
+}
+
+datasource db {
+	provider = "sqlite"
+	url      = env("DATABASE_URL")
+}
+
+// Define the user model
+model User {
+	id        Int       @id @default(autoincrement())
+	email     String    @unique
+	name      String?
+	password  String
+	role      String    @default("CLIENT")
+	employees Employee[]  
+	timesheets Timesheet[] 
+}
+
+// Define the Employee model
+model Employee {
+	id            Int       @id @default(autoincrement())
+	name          String
+	paymentType   String
+	hoursWorked	 	Int?  	@default(0)
+	paymentAmount Float    
+	user          User?     @relation(fields: [userId], references: [id])
+	userId        Int?      
+	timesheets    Timesheet[] 
+}
+
+// Define the Timesheet model
+model Timesheet {
+	id          Int       @id @default(autoincrement())
+	date        DateTime  @default(now())
+	checkDate   DateTime? @default(now())
+	state       String
+	note        String?
+	totalGross  Float
+	user        User      @relation(fields: [userId], references: [id])
+	userId      Int       
+	employees   Employee[] 
+	paymentStartDate DateTime? @default(now())
+	paymentEndDate DateTime? @default(now())
+}
+
