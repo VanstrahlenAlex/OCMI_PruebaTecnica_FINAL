@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from 'react';
 import EmployeeForm from '../components/EmployeeForm';
 
@@ -26,7 +26,7 @@ const EmployeesPage = () => {
                     setTimeout(() => {
                         setMessage(null);
                     }, 3000);
-                    getEmployees(); 
+                    getEmployees();
                 } else {
                     throw new Error('Failed to delete employee');
                 }
@@ -44,8 +44,13 @@ const EmployeesPage = () => {
 
     const handleSubmit = async (values: any) => {
         try {
-            const url = selectedEmployee ? `http://localhost:8000/employees/${selectedEmployee.id}` : 'http://localhost:8000/employees';
-            const method = selectedEmployee ? 'PUT' : 'POST';
+            let url = 'http://localhost:8000/employees';
+            let method = 'POST';
+
+            if (selectedEmployee) {
+                url += `/${selectedEmployee.id}`;
+                method = 'PUT';
+            }
 
             const response = await fetch(url, {
                 method: method,
@@ -54,16 +59,21 @@ const EmployeesPage = () => {
                     'Content-Type': 'application/json',
                 },
             });
+
             if (response.ok) {
                 const data = await response.json();
+				console.log(data);
+				
                 setMessage(data.message);
                 setTimeout(() => {
                     setMessage(null);
                     setIsModalOpen(false);
                 }, 2000);
 
-                getEmployees(); 
+                getEmployees();
             } else {
+				console.log(response);
+				
                 throw new Error('Failed to create/update employee');
             }
         } catch (error) {
@@ -117,39 +127,40 @@ const EmployeesPage = () => {
 
     const openModal = () => {
         setIsModalOpen(true);
+		setSelectedEmployee(null);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
-        setSelectedEmployee(null); 
+        setSelectedEmployee(null);
     };
 
     return (
         <div>
             <h1 className='text-2xl text-gray-800 font-light mb-4'>Employees</h1>
 
-			<div className='flex gap-4'>
-				<button onClick={openModal} className='bg-gray-600 text-white p-2 mb-4 rounded-md hover:bg-gray-800 cursor-pointer'>Add Employee</button>
-				<button  className='bg-gray-600 text-white p-2 mb-4 rounded-md hover:bg-gray-800 cursor-pointer' title="Reload">
-					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"
-					onClick={() => getEmployees()}
-				>
-					<path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-					</svg>
-				</button>
-			</div>
-            
+            <div className='flex gap-4'>
+                <button onClick={openModal} className='bg-gray-600 text-white p-2 mb-4 rounded-md hover:bg-gray-800 cursor-pointer'>Add Employee</button>
+                <button className='bg-gray-600 text-white p-2 mb-4 rounded-md hover:bg-gray-800 cursor-pointer' title="Reload">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"
+                        onClick={() => getEmployees()}
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                </button>
+            </div>
+
             {isModalOpen && (
                 <div className='fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-500 bg-opacity-50 '>
                     <div className='bg-white p-8 rounded-lg relative '>
-						{message && showMessage()}
+                        {message && showMessage()}
                         <h2 className='text-xl font-semibold mb-4'>Employee Form</h2>
                         <button onClick={closeModal} className='absolute top-0 right-0 p-4 text-red-500'>X Close</button>
                         <EmployeeForm onSubmit={handleSubmit} initialValues={selectedEmployee} />
                     </div>
                 </div>
             )}
-            
+
             <div>
                 <table className='table-auto shadow-md mt-10 w-full w-lg'>
                     <thead className='bg-gray-800'>

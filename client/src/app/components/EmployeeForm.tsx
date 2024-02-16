@@ -24,6 +24,8 @@ const EmployeeForm = ({ onSubmit, initialValues }: { onSubmit: (values: any) => 
             }}
             validationSchema={EmployeeFormSchema}
             onSubmit={(values) => {
+				console.log(values);
+				
                 onSubmit(values);
             }}
         >
